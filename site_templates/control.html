@@ -1,0 +1,188 @@
+{% extends 'base.html' %} {% block title %} 控制台 -- 西北地区农作物长势监测系统 {% endblock %} {% block head %} {% load static %}
+<link rel="stylesheet" href="{% static 'css/control.css' %}" type="text/css">
+<style type="text/css">
+body {
+    font-size: 16px;
+    color: black;
+}
+
+td {
+    height: 32px;
+}
+</style>
+{% endblock %} {% block content %}
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">控制台 -- 西北地区农作物长势监测系统</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a id="index-html" href="/">首页</a></li>
+                <li><a href="/signout/">退出登录</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li class="item"><a href="#user-man" data-toggle="tab" id="userman">用户管理</a></li>
+                    <li class="item"><a href="#data-man" data-toggle="tab" id="dataman">数据管理</a></li>
+                </ul>
+            </div>
+            <div id="tabContent" class="tab-content">
+                <div class="tab-pane fade" id="user-man">
+                    <div class="table-responsive">
+                        <table id="tb_users"></table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="data-man">
+                    <h2>上传数据</h2>
+                    <hr>
+                    <form id="fileinfo" class="form-inline">
+                        <br />{% csrf_token %}<br />
+                        <div class="form-group">
+                            <label>作物类型</label>
+                            <input type="text" name="ctype" id="ctype" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>生长期</label>
+                            <input type="text" name="term" id="term" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>年份</label>
+                            <input type="text" name="year" id="year" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>地区</label>
+                            <input type="text" name="area" id="area" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>位置</label>
+                            <input type="text" name="seat" id="seat" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label >文件</label>
+                            <input type="file" name="inputfile" id="inputfile">
+                        </div>
+                        <button class="btn btn-primary" id="uploadfile" type="button">上传</button>
+                    </form>
+                    <label id="tips"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(function() {
+    $("#ctype").focus(function() {
+        document.getElementById("tips").innerHTML="";
+    });
+    $("#term").focus(function() {
+        document.getElementById("tips").innerHTML="";
+    });
+    $("#year").focus(function() {
+        document.getElementById("tips").innerHTML="";
+    });
+    $("#area").focus(function() {
+        document.getElementById("tips").innerHTML="";
+    });
+    $("#seat").focus(function() {
+        document.getElementById("tips").innerHTML="";
+    });
+});
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+function csrf(method) {
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+};
+function upload() {
+    var form = new FormData(document.getElementById("fileinfo"));
+    $.ajax({
+        beforeSend: function(xhr, settings) {
+            if(!csrf(settings.type)&&!this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFTokem", csrftoken);
+            }
+        },
+        url:"/uploadfile/",
+        type:"post",
+        data:form,
+        processData:false,
+        contentType:false,
+        success: function(data){
+            document.getElementById("tips").innerHTML="上传成功！";
+        },
+        error: function(e) {
+            document.getElementById("tips").innerHTML="Error!";
+        }
+    });
+};
+$("#uploadfile").click(function() {
+    upload();
+});
+
+$("#userman").click(function() {
+    get_users();
+})
+
+function get_users() {
+    var obj = [];
+    $.ajax({
+        type: "GET",
+        url: "/get_users/",
+        data: {
+            type: 'get_users'
+        },
+        success: function(response) {
+
+            $.each(response.users, function(i, u) {
+                obj.push(u);
+            });
+
+            $("#tb_users").bootstrapTable({
+                data: obj,
+
+                columns: [{
+                    checkbox: true
+                }, {
+                    field: 'user',
+                    title: '用户名'
+                }, {
+                    field: 'name',
+                    title: '姓名'
+                }, {
+                    field: 'last',
+                    title: '最近登录'
+                }, {
+                    field: 'join',
+                    title: '创建时间'
+                }, ]
+            });
+        },
+    });
+}
+</script>
+{% endblock %}

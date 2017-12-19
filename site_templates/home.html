@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %} 首页 -- 西北地区农作物长势监测系统 {% endblock %}
+{% block head %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/form.css' %}" type="text/css">
+{% endblock %}
+{% block content %}
+{% include 'nav.html' %}
+{% include 'login.html' %}
+{% endblock %}

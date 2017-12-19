@@ -1,0 +1,602 @@
+{% extends 'base.html' %} {% block title %} 西北地区农作物长势监测系统 {% endblock %} {% block head %} {% load static %}
+<link rel="stylesheet" href="{% static 'css/sys_form.css' %}" type="text/css">
+<script type="text/javascript" src="{% static 'js/echarts.min.js' %}"></script> {% endblock %} {% block content %}
+<style type="text/css">
+.pic {
+    float: right;
+    margin-right: 80px;
+    width: 700px;
+    height: 500px;
+    padding-left: 30px;
+}
+
+#foot {
+    height: 30px;
+    font-size: 20px;
+    float: bottom;
+    clear: both;
+    bottom: 20px;
+    text-align: center;
+}
+
+#foot #sp {
+    text-align: center;
+    position: relative;
+    top: 85px;
+    right: 50px;
+    color: black;
+    background-color: #7fffd4;
+}
+.navbar-inverse {
+    background-color: #8b0017;
+  border-color: #8b0017;
+  padding-top: 20px;
+}
+.navbar-inverse .navbar-nav>li>a {
+  color: #fff;
+  font-size: 24px;
+}
+.navbar {
+  min-height: 90px;
+}
+.navbar-inverse .navbar-brand {
+    color: #fff;
+    font-size: 42px;
+}
+.btn-success {
+font-size: 24px;
+}
+
+<style type="text/css">.navbar .nav>li .dropdown-menu {
+    margin: 0;
+}
+
+.navbar .nav>li:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu {
+    min-width: 100px;
+}
+</style>
+<nav class="navbar navbar-fixed-top navbar-inverse">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/system/">西北地区农作物长势监测系统</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/">首页</a></li>
+                <li class="dropdown"><a href="">{{request.user.get_short_name}}</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="" class="link small-box-footer" data-toggle="modal" data-target="#EditDia">修改信息</a></li>
+                        <li role="presentation" class="divider"></li>
+                        <li><a href="/signout/">退出系统</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <!-- /.nav-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<!-- /.navbar -->
+</style>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar" style="bottom: 50px;">
+                <ul id="myTab" class="nav nav-tabs nav-pills nav-stacked">
+                    <li class="item"><a href="#yumi" data-toggle="tab"><span class="glyphicon glyphicon-th-large"></span><font size="6">玉米</font></a></li>
+                    <li class="item"><a href="#xiaomai" data-toggle="tab"><span class="glyphicon glyphicon-th-large"></span><font size="6">小麦</font></a></li>
+                    <li class="item"><a href="#shuidao" data-toggle="tab"><span class="glyphicon glyphicon-th-large"></span><font size="6">水稻</font></a></li>
+                    <li class="item"><a href="#mianhua" data-toggle="tab"><span class="glyphicon glyphicon-th-large"></span><font size="6">棉花</font></a></li>
+                    <li class="item"><a href="#youcai" data-toggle="tab"><span class="glyphicon glyphicon-th-large"></span><font size="6">油菜</font></a></li>
+                </ul>
+            </div>
+            <div id="tabContent" class="tab-content">
+                <div class="tab-pane fade" id="yumi">
+                    <div class="form-input" style="display: inline;">
+                        <form enctype="multipart/form-data" id="form-yumi">
+                            </br> {% csrf_token %} </br>
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label>生育期</label>
+                                    <select class="selectpicker" name="term" id="id-yumi">
+                                        <option value="1">三叶期</option>
+                                        <option value="2">拔节期</option>
+                                        <option value="3">灌浆期</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>位置</label>
+                                    <select class="selectpicker" name="seat">
+                                        <option value="1">叶片</option>
+                                        <option value="2">冠层</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" name="type" value="5">
+                                    <input type="file" name="myfile">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" id="btn-yumi" style="width: 100px;">提交</button>
+                    </div>
+                    <hr>
+                    <div class="container-fluid">
+                        <div class="row-fluid">
+                            <div class="span8">
+                                {% load static %}
+                                <img src="{% static 'img/yumi/1.jpg' %}" class="pic" id="img-yumi">
+                            </div>
+                            <div class="span4">
+                                <span>
+                                <div class="table-responsive">
+                                    <table id="tb_yumi" style="padding-right: 30px;"></table>
+                                </div>
+                                <div style="width:30px;"></div>    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="xiaomai">
+                    <div class="form-input">
+                        <form enctype="multipart/form-data" id="form-xiaomai">
+                            </br> {% csrf_token %} </br>
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label>生育期</label>
+                                    <select class="selectpicker" name="term" id="id-xiaomai">
+                                        <option value="1">拔节期</option>
+                                        <option value="2">开花期</option>
+                                        <option value="3">蜡熟期</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>位置</label>
+                                    <select class="selectpicker" name="seat">
+                                        <option value="1">叶片</option>
+                                        <option value="2">冠层</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" name="type" value="3">
+                                    <input type="file" name="myfile">
+                                </div>
+                            </div>
+                        </form>
+                        <button class="btn btn-success" id="btn-xiaomai" style="width: 100px;">提交</button>
+                    </div>
+                    <hr>
+                    <div class="container-fluid">
+                        <div class="row-fluid">
+                            <div class="span8">
+                                {% load static %}
+                                <img src="{% static 'img/xiaomai/1.jpg' %}" class="pic" id="img-xiaomai">
+                            </div>
+                            <div class="span4">
+                                <span>
+                                <div class="table-responsive">
+                                    <table id="tb_xiaomai" style="padding-right: 30px;"></table>
+                                </div>
+                                <div style="width:30px;"></div>    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="shuidao">
+                    <div class="form-input">
+                        <form enctype="multipart/form-data" id="form-shuidao">
+                            </br> {% csrf_token %} </br>
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label>生育期</label>
+                                    <select class="selectpicker" name="term" id="id-shuidao">
+                                        <option value="1">拔节期</option>
+                                        <option value="2">抽穗期</option>
+                                        <option value="3">乳熟期</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>位置</label>
+                                    <select class="selectpicker" name="seat">
+                                        <option value="1">叶片</option>
+                                        <option value="2">冠层</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" name="type" value="2">
+                                    <input type="file" name="myfile">
+                                </div>
+                            </div>
+                        </form>
+                        <button class="btn btn-success" id="btn-shuidao" style="width: 100px;">提交</button>
+                    </div>
+                    <hr>
+                    <div class="container-fluid">
+                        <div class="row-fluid">
+                            <div class="span8">
+                                {% load static %}
+                                <img src="{% static 'img/shuidao/1.jpg' %}" class="pic" id="img-shuidao">
+                            </div>
+                            <div class="span4">
+                                <span>
+                                <div class="table-responsive">
+                                    <table id="tb_shuidao" style="padding-right: 30px;"></table>
+                                </div>
+                                <div style="width:30px;"></div>    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="mianhua">
+                    <div class="form-input">
+                        <form enctype="multipart/form-data" id="form-mianhua">
+                            </br> {% csrf_token %} </br>
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label>生育期</label>
+                                    <select class="selectpicker" name="term" id="id-mianhua">
+                                        <option value="1">蕾期</option>
+                                        <option value="2">花铃期</option>
+                                        <option value="3">吐絮期</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>位置</label>
+                                    <select class="selectpicker" name="seat">
+                                        <option value="1">叶片</option>
+                                        <option value="2">冠层</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" name="type" value="1">
+                                    <input type="file" name="myfile">
+                                </div>
+                            </div>
+                        </form>
+                        <button class="btn btn-success" id="btn-mianhua" style="width: 100px;">提交</button>
+                    </div>
+                    <hr>
+                    <div class="container-fluid">
+                        <div class="row-fluid">
+                            <div class="span8">
+                                {% load static %}
+                                <img src="{% static 'img/mianhua/1.jpg' %}" class="pic" id="img-mianhua">
+                            </div>
+                            <div class="span4">
+                                <span>
+                                <div class="table-responsive">
+                                    <table id="tb_mianhua" style="padding-right: 30px;"></table>
+                                </div>
+                                <div style="width:30px;"></div>    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="youcai">
+                    <div class="form-input">
+                        <form enctype="multipart/form-data" id="form-youcai">
+                            </br> {% csrf_token %} </br>
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label>生育期</label>
+                                    <select class="selectpicker" name="term" id="id-youcai">
+                                        <option value="1">苗期</option>
+                                        <option value="2">蕾薹期</option>
+                                        <option value="3">成熟期</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>位置</label>
+                                    <select class="selectpicker" name="seat">
+                                        <option value="1">叶片</option>
+                                        <option value="2">冠层</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" name="type" value="4">
+                                    <input type="file" name="myfile">
+                                </div>
+                            </div>
+                        </form>
+                        <button class="btn btn-success" id="btn-youcai" style="width: 100px;">提交</button>
+                    </div>
+                    <hr>
+                    <div class="container-fluid">
+                        <div class="row-fluid">
+                            <div class="span8">
+                                {% load static %}
+                                <img src="{% static 'img/youcai/1.jpg' %}" class="pic" id="img-youcai">
+                            </div>
+                            <div class="span4">
+                                <span>
+                                <div class="table-responsive">
+                                    <table id="tb_youcai" style="padding-right: 30px;"></table>
+                                </div>
+                                <div style="width:30px;"></div>    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer navbar-fixed-bottom ">
+    <div class="container">
+        <hr width="100%" size="3px" align="center">
+        <p id="sp" align="center" style="font-size: 18px;">版权所有 © 西北农林科技大学</p>
+    </div>
+</footer>
+<script type="text/javascript">
+var obj;
+$(function() {
+    $('#myTab a:first').tab('show');
+    $("#btn-yumi").click(function() {
+        var val = $("#id-yumi").val();
+        if (val == 1) {
+            document.getElementById('img-yumi').src = "{% static 'img/yumi/1.jpg' %}"
+        }
+        if (val == 2) {
+            document.getElementById('img-yumi').src = "{% static 'img/yumi/2.jpg' %}"
+        }
+        if (val == 3) {
+            document.getElementById('img-yumi').src = "{% static 'img/yumi/3.jpg' %}"
+        }
+        $("#tb_yumi").bootstrapTable('destroy');
+        get_tb_yumi();
+    });
+    $("#btn-xiaomai").click(function() {
+        var val = $("#id-xiaomai").val();
+        if (val == 1) {
+            document.getElementById('img-xiaomai').src = "{% static 'img/xiaomai/1.jpg' %}"
+        }
+        if (val == 2) {
+            document.getElementById('img-xiaomai').src = "{% static 'img/xiaomai/2.jpg' %}"
+        }
+        if (val == 3) {
+            document.getElementById('img-xiaomai').src = "{% static 'img/xiaomai/3.jpg' %}"
+        }
+        $("#tb_xiaomai").bootstrapTable('destroy');
+        get_tb_xiaomai();
+    });
+    $("#btn-shuidao").click(function() {
+        var val = $("#id-shuidao").val();
+        if (val == 1) {
+            document.getElementById('img-shuidao').src = "{% static 'img/shuidao/1.jpg' %}"
+        }
+        if (val == 2) {
+            document.getElementById('img-shuidao').src = "{% static 'img/shuidao/2.jpg' %}"
+        }
+        if (val == 3) {
+            document.getElementById('img-shuidao').src = "{% static 'img/shuidao/3.jpg' %}"
+        }
+        $("#tb_shuidao").bootstrapTable('destroy');
+        get_tb_shuidao();
+    });
+    $("#btn-mianhua").click(function() {
+        var val = $("#id-mianhua").val();
+        if (val == 1) {
+            document.getElementById('img-mianhua').src = "{% static 'img/mianhua/1.jpg' %}"
+        }
+        if (val == 2) {
+            document.getElementById('img-mianhua').src = "{% static 'img/mianhua/2.jpg' %}"
+        }
+        if (val == 3) {
+            document.getElementById('img-mianhua').src = "{% static 'img/mianhua/3.jpg' %}"
+        }
+        $("#tb_mianhua").bootstrapTable('destroy');
+        get_tb_mianhua();
+    });
+    $("#btn-youcai").click(function() {
+        var val = $("#id-youcai").val();
+        if (val == 1) {
+            document.getElementById('img-youcai').src = "{% static 'img/youcai/1.jpg' %}"
+        }
+        if (val == 2) {
+            document.getElementById('img-youcai').src = "{% static 'img/youcai/2.jpg' %}"
+        }
+        if (val == 3) {
+            document.getElementById('img-youcai').src = "{% static 'img/youcai/3.jpg' %}"
+        }
+        $("#tb_youcai").bootstrapTable('destroy');
+        get_tb_youcai();
+    });
+})
+
+function get_tb_yumi() {
+    var formD = new FormData($("#form-yumi")[0])
+    $.ajax({
+        type: "POST",
+        url: "/handle_data/",
+        data: formD,
+        async: false,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            // $("#tb_yumi").dataTable().fnClearTable();
+            obj = [];
+            $.each(response.data, function(i, u) {
+                obj.push(u);
+            });
+            $("#tb_yumi").bootstrapTable({
+                data: obj,
+                columns: [{}, {
+                    field: 'n',
+                    title: '名称'
+                }, {
+                    field: 't',
+                    title: '特征波长'
+                }, {
+                    field: 'f',
+                    title: '光谱反射率'
+                }, {
+                    field: 'z',
+                    title: '参数值'
+                }, ]
+            });
+        },
+    });
+}
+
+function get_tb_xiaomai() {
+    var formD = new FormData($("#form-xiaomai")[0])
+    $.ajax({
+        type: "POST",
+        url: "/handle_data/",
+        data: formD,
+        async: false,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            // $("#tb_yumi").dataTable().fnClearTable();
+            obj = [];
+            $.each(response.data, function(i, u) {
+                obj.push(u);
+            });
+            $("#tb_xiaomai").bootstrapTable({
+                data: obj,
+                columns: [{}, {
+                    field: 'n',
+                    title: '名称'
+                }, {
+                    field: 't',
+                    title: '特征波长'
+                }, {
+                    field: 'f',
+                    title: '光谱反射率'
+                }, {
+                    field: 'z',
+                    title: '参数值'
+                }, ]
+            });
+        },
+    });
+}
+
+function get_tb_shuidao() {
+    var formD = new FormData($("#form-shuidao")[0])
+    $.ajax({
+        type: "POST",
+        url: "/handle_data/",
+        data: formD,
+        async: false,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            // $("#tb_yumi").dataTable().fnClearTable();
+            obj = [];
+            $.each(response.data, function(i, u) {
+                obj.push(u);
+            });
+            $("#tb_shuidao").bootstrapTable({
+                data: obj,
+                columns: [{}, {
+                    field: 'n',
+                    title: '名称'
+                }, {
+                    field: 't',
+                    title: '特征波长'
+                }, {
+                    field: 'f',
+                    title: '光谱反射率'
+                }, {
+                    field: 'z',
+                    title: '参数值'
+                }, ]
+            });
+        },
+    });
+}
+
+function get_tb_mianhua() {
+    var formD = new FormData($("#form-mianhua")[0])
+    $.ajax({
+        type: "POST",
+        url: "/handle_data/",
+        data: formD,
+        async: false,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            // $("#tb_yumi").dataTable().fnClearTable();
+            obj = [];
+            $.each(response.data, function(i, u) {
+                obj.push(u);
+            });
+            $("#tb_mianhua").bootstrapTable({
+                data: obj,
+                columns: [{}, {
+                    field: 'n',
+                    title: '名称'
+                }, {
+                    field: 't',
+                    title: '特征波长'
+                }, {
+                    field: 'f',
+                    title: '光谱反射率'
+                }, {
+                    field: 'z',
+                    title: '参数值'
+                }, ]
+            });
+        },
+    });
+}
+
+function get_tb_youcai() {
+    var formD = new FormData($("#form-youcai")[0])
+    $.ajax({
+        type: "POST",
+        url: "/handle_data/",
+        data: formD,
+        async: false,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            // $("#tb_yumi").dataTable().fnClearTable();
+            obj = [];
+            $.each(response.data, function(i, u) {
+                obj.push(u);
+            });
+            $("#tb_youcai").bootstrapTable({
+                data: obj,
+                columns: [{}, {
+                    field: 'n',
+                    title: '名称'
+                }, {
+                    field: 't',
+                    title: '特征波长'
+                }, {
+                    field: 'f',
+                    title: '光谱反射率'
+                }, {
+                    field: 'z',
+                    title: '参数值'
+                }, ]
+            });
+        },
+    });
+}
+</script>
+{% include 'edituser.html' %} {% endblock %}

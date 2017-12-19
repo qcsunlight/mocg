@@ -1,0 +1,99 @@
+<div class="modal fade" id="EditDia" tabindex="-1" role="dialog" aria-labelledby="LoginDiaLable" aria-hidden="true">
+
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h2 class="modal-title" id="myModalLabel" style="color: black;">
+					修改用户信息
+				</h2>
+			</div>
+			<div class="modal-body">
+				<label id="tips"></label>
+                <div class="editname">
+                    <input type="text" id="newname" name="newname" class="edit form-control" placeholder="新的用户名">
+                    <button class="edit btn btn-lg btn-primary" id="name-btn">提交修改</button>
+                </div>
+                <div class="editpass">
+                    <input type="password" id="oldpass" name="oldpass" class="edit form-control" placeholder="旧密码">
+                    <input type="password" id="newpass" name="newpass" class="edit form-control" placeholder="新密码">
+                    <input type="password" id="c_newpass" name="c_newpass" class="edit form-control" placeholder="确认新密码">
+                    <button class="edit btn btn-lg btn-primary" id="pass-btn">提交修改</button>
+                </div>
+			</div>
+            <div class="modal-footer">
+                <button class="btn btn-lg btn-success btn-block" id="btn-finish">完成修改</button>
+            </div>			
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<script type="text/javascript">
+    $(function() {
+        $("#newname").focus(function() {
+            document.getElementById("tips").innerHTML="";
+        });
+        $("#oldpass").focus(function() {
+            document.getElementById("tips").innerHTML="";
+        });
+        $("#newpass").focus(function() {
+            document.getElementById("tips").innerHTML="";
+        });
+        $("#c_newpass").focus(function() {
+            document.getElementById("tips").innerHTML="";
+        });
+        $("#name-btn").click(function() {
+            var newname = $("#newname").val();
+            if(newname == ""){
+                return false;
+            }
+            $.ajax({
+                type: "GET",
+                url: "/editing/",
+                data: {
+                    type: 'editname',
+                    name: newname
+                },
+                success: function(response) {
+                        document.getElementById("tips").innerHTML=response.message;
+                },
+            });
+        });
+        $("#pass-btn").click(function() {
+            var oldpass = $("#oldpass").val();
+            var newpass = $("#newpass").val();
+            var c_newpass = $("#c_newpass").val();
+            if(oldpass == "" || newpass == "" || c_newpass == ""){
+                return false;
+            }
+            if(newpass != c_newpass){
+                document.getElementById("tips").innerHTML="两次密码输入不一致！，请重新输入";
+                return false;
+            }
+            $.ajax({
+                type: "GET",
+                url: "/editing/",
+                data: {
+                    type: 'editpass',
+                    o_pass: oldpass,
+                    n_pass: newpass
+                },
+                success: function(response) {
+                        document.getElementById("tips").innerHTML=response.message;
+                },
+            });
+        });
+        function finish() {
+            window.location.reload();
+        };
+        $("#btn-finish").click(function() {
+            finish();
+        });
+        $(":input").keydown(function (event) {
+            if (event.keyCode == 13) {
+                finish();
+            }
+        });
+    })
+</script>
