@@ -1,0 +1,94 @@
+<div class="modal fade" id="LoginDia" tabindex="-1" role="dialog" aria-labelledby="LoginDiaLable" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h2 class="modal-title" id="myModalLabel" style="color: black;">
+					登 录 系 统
+				</h2>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <!--       <form class="form-signin" action="/login/" method="GET"> -->
+                    <h2 class="form-signin-heading"></h2>
+                    <div class="login-div">
+                        <p id="tips" style="height: 22px; color: red;"></p>
+                        <label style="padding-top: 0px; color: grey;">用 户 名</label>
+                        <label for="user" class="sr-only">用户名</label>
+                        <input type="text" id="user" name="user" class="form-control" autocomplete="off" placeholder="用户名" required autofocus>
+                        <label style="padding-top: 30px; color: grey; letter-spacing: 22px;">密码</label>
+                        <label for="pass" class="sr-only">密码</label>
+                        <input type="password" id="pass" name="pass" class="form-control" autocomplete="off" placeholder="密码" required>
+                        <label style="padding-top: 30px; color: grey;">保持登录状态</label>
+                        <div class="checkbox">
+                            <select class="selectpicker" id="keep">
+                                <option value="one_day" id="one-day">一天之内免登录</option>
+                                <option value="one_week" id="one-week">一周之内免登录</option>
+                                <option value="one_month" id="one-month">一月之内免登录</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-lg btn-success btn-block" type="submit" id="btn-login">登 录</button>
+                        </div>
+                    </div>
+                    <!--       </form> -->
+                </div>
+                <!-- /container -->
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal -->
+</div>
+<script type="text/javascript">
+$(function() {
+    $("LoginDia").show();
+    $("#user").focus(function() {
+        document.getElementById("tips").innerHTML = "";
+    });
+    $("#pass").focus(function() {
+        document.getElementById("tips").innerHTML = "";
+    });
+
+    function login() {
+        var user = $("#user").val();
+        if (user == "") {
+            document.getElementById("tips").innerHTML = "请输入您的用户名！";
+            return false;
+        }
+        var pass = $("#pass").val();
+        if (pass == "") {
+            document.getElementById("tips").innerHTML = "请输入您的密码！";
+            return false;
+        }
+        var keep = $("#keep option:selected").val()
+        $.ajax({
+            type: "GET",
+            url: "/login/",
+            data: {
+                username: user,
+                password: pass,
+                loginkeep: keep
+            },
+            success: function(response) {
+                if (response.status == true) {
+                    window.location.reload();
+                } else {
+                    document.getElementById("tips").innerHTML = response.message;
+                }
+            },
+        });
+
+    };
+    $("#btn-login").click(function() {
+        login();
+    });
+    $(":input").keydown(function(event) {
+        if (event.keyCode == 13) {
+            login();
+        }
+    })
+});
+</script>

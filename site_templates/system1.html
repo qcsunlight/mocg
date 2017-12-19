@@ -1,0 +1,38 @@
+{% extends 'base.html' %} {% block title %} 西北地区农作物长势监测系统 {% endblock %} {% block head %} {% load static %}
+<link rel="stylesheet" href="{% static 'css/sys_form1.css' %}" type="text/css"> {% endblock %} {% block content %}
+<div class="wraq">
+    <div class="header">
+        <nav class="navbar navbar-inverse" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                </div>
+                <div>
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">iOS</a></li>
+                        <li><a href="#">SVN</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    Java <b class="caret"></b>
+                </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">jmeter</a></li>
+                                <li><a href="#">EJB</a></li>
+                                <li><a href="#">Jasper Report</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#">分离的链接</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#">另一个分离的链接</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="content">
+    </div>
+    <div class="footer">
+        版权所有 © 西北农林科技大学
+    </div>
+</div>
+{% endblock %}
